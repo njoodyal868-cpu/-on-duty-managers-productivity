@@ -885,7 +885,7 @@ const cut=(s,n)=>{s=N(s);return s.length>n?s.slice(0,n)+' ...':s};
 
 function detectSheet(rows){
  for(let i=0;i<Math.min(rows.length,15);i++){const r=rows[i];if(!r)continue;const ks=r.map(K);
-  if(ks.some(k=>k.includes('تاريخالخدمه')))return {kind:'svc',hi:i};
+  if(ks.some(k=>k.includes('تاريخ')))return {kind:'svc',hi:i};
   if(ks.some(k=>k==='complaintno'||k==='complainttype'||k.includes('نوعالشكوي')||k.includes('رقمالشكوي')||k.includes('نوعالبلاغ')||k.includes('رقمالبلاغ')))return {kind:'cmp',hi:i};
   if(ks.some(k=>k==='تعليق'||k==='comment')&&ks.some(k=>k.includes('تذكره')||k.includes('ticket')))return {kind:'sat',hi:i};
  }return null}
