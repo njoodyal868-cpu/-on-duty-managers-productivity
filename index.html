@@ -10,25 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCSzWvWcm5prSnpwpWYxxfz7Tn8FiQUAnc",
-    authDomain: "on-duty-managers-platform.firebaseapp.com",
-    projectId: "on-duty-managers-platform",
-    storageBucket: "on-duty-managers-platform.firebasestorage.app",
-    messagingSenderId: "884278063168",
-    appId: "1:884278063168:web:026bd026dcb4d2c604efa5"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  window.firebaseDB = getFirestore(app);
-  window.firebaseAuth = getAuth(app);
-</script>
- <style>
+<style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
 --bg:#FFFFFF;--surface:#FFFFFF;--ink:#1B2B34;--muted:#5E7079;--line:#E3EAED;--soft:#F4F8F9;
 --head:#0E5A6B;--accent:#12A39B;--gold:#D8A23A;--warn:#D8A23A;--bad:#C8553D;
@@ -333,9 +315,9 @@ tr.tot td{font-weight:800;background:var(--soft)}
 
 <div class="ov" id="m-up" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="up-h">
  <div class="mhead"><h2 id="up-h">رفع ملفات</h2><button class="x" data-close aria-label="إغلاق">×</button></div>
- <p style="margin:0;color:var(--muted);font-size:14px">ارفع ملفًا أو أكثر معًا. تتعرف المنصة على نوع كل ملف تلقائيًا: خدمات المدراء المناوبين (إكسل)، البلاغات 937 و CRM 19910 (إكسل)، تقرير رضا المستفيد (PDF أو إكسل).</p>
- <div class="drop" id="drop" tabindex="0" role="button"><b>اسحب الملفات هنا أو اضغط للاختيار</b><span>xlsx أو xls أو csv أو pdf، ويمكن اختيار أكثر من ملف</span></div>
- <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv,.pdf" multiple hidden>
+ <p style="margin:0;color:var(--muted);font-size:14px">ارفع ملفًا أو أكثر معًا. تتعرف المنصة على نوع كل ملف تلقائيًا: خدمات المدراء المناوبين، البلاغات 937 و CRM 19910، ورضا المستفيد. الإكسل هو الأدق، ثم PDF و PowerPoint، أما الصور فتُقرأ بالتعرف الضوئي ويُفضل مراجعة نتيجتها.</p>
+ <div class="drop" id="drop" tabindex="0" role="button"><b>اسحب الملفات هنا أو اضغط للاختيار</b><span>إكسل، PDF، PowerPoint (pptx)، صور (png أو jpg)، ويمكن اختيار أكثر من ملف</span></div>
+ <input type="file" id="file" accept=".xlsx,.xls,.xlsm,.csv,.pdf,.pptx,.ppsx,.png,.jpg,.jpeg,.webp,.bmp" multiple hidden>
  <div id="up-res"></div>
 </div></div>
 
@@ -353,7 +335,7 @@ tr.tot td{font-weight:800;background:var(--soft)}
    <div><label class="fl" for="uf-n">الاسم</label><input type="text" id="uf-n"></div>
    <div><label class="fl" for="uf-u">اسم المستخدم</label><input type="text" id="uf-u" dir="ltr" autocomplete="off"></div>
    <div><label class="fl" for="uf-p" id="uf-pl">كلمة المرور</label><input type="password" id="uf-p" dir="ltr" autocomplete="new-password"></div>
-   <div><label class="fl" for="uf-r">الصلاحية</label><select class="f" id="uf-r"><option value="viewer">مستخدم: رفع الملفات وعرض التقارير</option><option value="admin">مدير النظام: رفع الملفات وإدارة المستخدمين</option></select></div>
+   <div><label class="fl" for="uf-r">الصلاحية</label><select class="f" id="uf-r"><option value="viewer">مشاهد: يعرض التقارير فقط</option><option value="admin">مدير النظام: رفع الملفات وإدارة المستخدمين</option></select></div>
    <div><label class="fl" for="uf-e">نطاق بيانات الخدمات</label><select class="f" id="uf-e"></select></div>
    <div><label class="fl" for="uf-a">الحالة</label><select class="f" id="uf-a"><option value="1">مفعّل</option><option value="0">موقوف</option></select></div>
   </div>
@@ -500,7 +482,7 @@ $('b-out').onclick=()=>{if(ST.local){location.reload();return}logout()};
 const myTabs=()=>{const m=ST.me;if(!m)return [];if(m.role==='admin')return ['svc','cmp','sat'];return (m.tabs&&m.tabs.length?m.tabs:['svc','cmp','sat'])};
 function paintMe(){const m=ST.me;$('me-name').textContent=m.name||m.id;$('me-av').textContent=(m.name||m.id||'؟').trim().charAt(0);
  $('me-role').textContent=(m.role==='admin'?'مدير النظام':'مشاهد')+(m.emp?' · خدمات '+m.emp+' فقط':'')+(ST.desktop?' · نسخة سطح المكتب':'');
- const adm=m.role==='admin';$('b-up').hidden=false;$('b-data').hidden=!adm||ST.local;$('b-users').hidden=!adm||ST.local;$('b-pw').hidden=ST.local;
+ const adm=m.role==='admin';$('b-up').hidden=!adm;$('b-data').hidden=!adm||ST.local;$('b-users').hidden=!adm||ST.local;$('b-pw').hidden=ST.local;
  if(m.emp)ST.cur=m.emp;
  const t=myTabs();document.querySelectorAll('#tabs button').forEach(b=>b.hidden=!t.includes(b.dataset.tab));$('tabs').hidden=t.length<2;
  if(!t.includes(ST.tab))ST.tab=t[0]||'svc'}
@@ -516,9 +498,12 @@ function enterApp(){screen('scr-app');paintMe();
  }
  render();
 }
+function mergeTk(arr,pref937){const by=new Map();const out=[];arr.forEach(r=>{if(!r.t){out.push(r);return}const e=by.get(r.t);if(!e){const c={...r};by.set(r.t,c);out.push(c);return}
+ for(const k in r){if(k!=='ch'&&k!=='d'&&(!e[k]||e[k]==='غير مصنف')&&r[k])e[k]=r[k]}if(pref937&&r.ch==='937')e.ch='937'});return out}
 function rebuild(){
  const out={svc:[],cmp:[],sat:[]};
  ST.rawChunks.slice().sort((a,b)=>a.i-b.i).forEach(d=>{const ds=d.ds||'svc';const ent=ST.months[ds+'__'+d.m];if(!ent||d.i>=ent.chunks||(!d.ds)!==ent.legacy)return;(d.recs||[]).forEach(r=>out[dsKind(ds)].push(r))});
+ out.cmp=mergeTk(out.cmp,true);out.sat=mergeTk(out.sat,false);
  Object.values(out).forEach(a=>a.sort((x,y)=>x.d<y.d?-1:x.d>y.d?1:0));ST.data=out;
  const subs=[];Object.keys(ST.months).sort().forEach(k=>(ST.months[k].subs||[]).forEach(s=>{if(!subs.includes(s))subs.push(s)}));ST.subs=subs;
  render();
@@ -825,7 +810,7 @@ const SATC=['راضٍ عن الإجراء والتواصل','راضٍ عن ال�
 const SATCOL={'راضٍ عن الإجراء والتواصل':'#12A39B','راضٍ عن التواصل فقط':'#D8A23A','غير راضٍ':'#C8553D','غير محدد':'#9AA9B0'};
 function satCat(cm){const k=K(cm);if(!k)return 'غير محدد';
  if(/غيرراض|لميرض|عدمالرضا|غيرمرتاح|مستاء|متذمر/.test(k))return 'غير راضٍ';
- if(/راض|رضا|شاكر|ممتن|سعيد/.test(k)){if(/فقط|دون|جزئي/.test(k)||!/اجراء|الخدمه|الحل/.test(k))return 'راضٍ عن التواصل فقط';return 'راضٍ عن الإجراء والتواصل'}
+ if(/راض|رضا|شاكر|ممتن|سعيد/.test(k)){if(/فقط|دون|جزئي/.test(k)||(/عنالتواصل/.test(k)&&!/اجراء|الخدمه|الحل/.test(k)))return 'راضٍ عن التواصل فقط';return 'راضٍ عن الإجراء والتواصل'}
  return 'غير محدد'}
 const satisfied=c=>c==='راضٍ عن الإجراء والتواصل'||c==='راضٍ عن التواصل فقط';
 function renderSat(months,PN){
@@ -845,7 +830,7 @@ function renderSat(months,PN){
   ['',full,'راضٍ عن الإجراء والتواصل ('+pct(full,rs.length)+')','t-a'],
   ['',part,'راضٍ عن التواصل فقط ('+pct(part,rs.length)+')','t-g'],
   ['',bad,'غير راضٍ ('+pct(bad,rs.length)+')','t-b'],
-  ['',pct(res,rs.length),'تم الحل ('+res+')'],
+  ['',pct(res,rs.length),'راضٍ عن الموظف / تم الحل ('+res+')'],
   ['',dRate==null?'—':(dRate>0?'+':'')+dRate.toFixed(1)+' نقطة','مقارنة بنسبة رضا '+periodName(ppt,py,pp)+(prevRate==null?'':' ('+prevRate.toFixed(1)+'%)'),'',dRate==null?'':dRate>=0?'up':'down']
  ]);
  if(!emptyCheck(rs.length>0,'لا توجد تقييمات رضا في هذه الفترة. اختر فترة أخرى أو ارفع تقرير رضا المستفيد.','v-sat'))return;
@@ -862,7 +847,7 @@ function renderSat(months,PN){
 function ttable(){const q=$('tq').value.trim();let rs=ST.satRecs||[];if(q)rs=rs.filter(r=>JSON.stringify(r).includes(q));
  $('t-rcount').textContent=rs.length+' تقييم، مرتبة حسب التاريخ';
  const pc=c=>c===SATC[0]?'':c===SATC[1]?'g':c===SATC[2]?'b':'m';
- $('trt').innerHTML='<thead><tr><th>#</th><th>رقم التذكرة</th><th>التاريخ</th><th>القناة</th><th>اسم المستفيد</th><th>تم الحل</th><th>الحالة</th><th>تصنيف الرضا</th><th>التعليق</th></tr></thead><tbody>'+
+ $('trt').innerHTML='<thead><tr><th>#</th><th>رقم التذكرة</th><th>التاريخ</th><th>القناة</th><th>اسم المستفيد</th><th>راضٍ عن الموظف</th><th>الحالة</th><th>تصنيف الرضا</th><th>التعليق</th></tr></thead><tbody>'+
  rs.map((r,i)=>`<tr><td>${i+1}</td><td dir="ltr" style="text-align:right">${esc(r.t)}</td><td class="num">${r.d}${r.tm?' <small style="color:var(--muted)">'+esc(r.tm)+'</small>':''}</td><td>${CHN[r.ch]||esc(r.ch)}</td><td>${esc(r.nm)}</td><td>${esc(r.res)}</td><td>${esc(r.st)}</td><td><span class="pill ${pc(r.cat)}">${esc(r.cat)}</span></td><td class="act">${esc(r.cm)}</td></tr>`).join('')+'</tbody>'}
 $('tq').oninput=ttable;
 
@@ -885,7 +870,7 @@ const cut=(s,n)=>{s=N(s);return s.length>n?s.slice(0,n)+' ...':s};
 
 function detectSheet(rows){
  for(let i=0;i<Math.min(rows.length,15);i++){const r=rows[i];if(!r)continue;const ks=r.map(K);
-  if(ks.some(k=>k.includes('تاريخ')))return {kind:'svc',hi:i};
+  if(ks.some(k=>k.includes('تاريخالخدمه')))return {kind:'svc',hi:i};
   if(ks.some(k=>k==='complaintno'||k==='complainttype'||k.includes('نوعالشكوي')||k.includes('رقمالشكوي')||k.includes('نوعالبلاغ')||k.includes('رقمالبلاغ')))return {kind:'cmp',hi:i};
   if(ks.some(k=>k==='تعليق'||k==='comment')&&ks.some(k=>k.includes('تذكره')||k.includes('ticket')))return {kind:'sat',hi:i};
  }return null}
@@ -927,30 +912,78 @@ function colFinder(H){const HK=H.map(K);return (...pats)=>{for(const p of pats){
 function parseCmp(rows,hi){
  const H=rows[hi].map(N);const f=colFinder(H);
  const iT=f('complaintno',/رقمالشكوي|رقمالبلاغ|تذكرهرقم|رقمالتذكره/),iTy=f('complainttype',/نوعالشكوي|نوعالبلاغ|تصنيف/),iDp=f('department',/^القسم$|^قسم$/),iSt=f('complaintstatus','status',/حالهال/),
-  iEm=f('employeename',/اسمالموظف|مسندالي|الموظف/),iDs=f('description',/الوصف|وصفال/),iD=f('createdate',/تاريخالانشاء|تاريخالبلاغ|^تاريخ/),iNm=f('patientname',/اسمالمستفيد|اسمالمريض/),iCh=f('channel',/قناه/);
+  iEm=f('employeename',/اسمالموظف|مسندالي|الموظف/),iDs=f('description',/الوصف|وصفال/),iD=f('createdate',/تاريخالانشاء|انشاءتاريخ|تاريخالبلاغ|تاريخ|date/),iNm=f('patientname',/اسمالمستفيد|اسمالمريض/),iCh=f('channel',/قناه/);
  if(iD<0)return {error:'لم يتم العثور على عمود تاريخ البلاغ'};
+ const hk=H.map(K).join('|');const hint=hk.includes('19910')?'19910':hk.includes('937')?'937':'';
  const out=[];let skipped=0;
  for(let r=hi+1;r<rows.length;r++){const row=rows[r];if(!row)continue;const d=toDate(row[iD]);const t=iT>=0?N(row[iT]):'';
   if(!d||(!t&&!(iTy>=0&&N(row[iTy])))){if(row.some(c=>N(c)))skipped++;continue}
   const g=i=>i>=0?N(row[i]):'';
   out.push({t,d,tm:toTime(row[iD]),ty:g(iTy),dep:g(iDp),st:g(iSt),emp:g(iEm),ds:cut(g(iDs),500),nm:g(iNm),ch0:iCh>=0?chOf(row[iCh]):''});
  }
- return {recs:out,skipped,rowCh:out.some(r=>r.ch0)};
+ return {recs:out,skipped,rowCh:out.some(r=>r.ch0),hint};
 }
 function parseSatX(rows,hi){
  const H=rows[hi].map(N);const f=colFinder(H);
- const iT=f(/تذكرهرقم|رقمالتذكره|ticket/),iNm=f(/اسمالمستفيد/),iR=f(/^تمالحل$|^الحل$|تمالحل/),iSt=f(/^حاله|حالهالطلب/),iCh=f(/قناه/),iCm=f('تعليق','comment'),iD=f(/تاريخالانشاء|^تاريخ/);
+ const iT=f(/تذكرهرقم|رقمالتذكره|ticket/),iNm=f('patientname',/اسمالمستفيد|اسمالمريض/),iR=f('satisfiedwithagent',/^تمالحل$|^الحل$|تمالحل|راضعنالموظف/),iSt=f('stage','status',/^حاله|حالهالطلب/),iCh=f('channel',/قناه/),iCm=f('تعليق','comment'),iD=f('createdate',/تاريخالانشاء|^تاريخ|date/);
  if(iD<0||iCm<0)return {error:'لم يتم العثور على أعمدة التعليق والتاريخ'};
  const out=[];let skipped=0;
  for(let r=hi+1;r<rows.length;r++){const row=rows[r];if(!row)continue;const d=toDate(row[iD]);if(!d){if(row.some(c=>N(c)))skipped++;continue}
   const g=i=>i>=0?N(row[i]):'';out.push({t:g(iT),d,tm:toTime(row[iD]),nm:g(iNm),res:g(iR),st:g(iSt),cm:cut(g(iCm),500),ch0:iCh>=0?chOf(row[iCh]):''})}
  return {recs:out,skipped,rowCh:out.some(r=>r.ch0)};
 }
+function parseRows(rows){const det=detectSheet(rows);if(!det)return null;const p=det.kind==='svc'?parseSvc(rows,det.hi):det.kind==='cmp'?parseCmp(rows,det.hi):parseSatX(rows,det.hi);return {kind:det.kind,...p}}
 function parseWorkbook(buf){
  const wb=XLSX.read(buf,{type:'array'});const res=[];
- wb.SheetNames.forEach(sn=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:null,blankrows:false});const det=detectSheet(rows);if(!det)return;
-  const p=det.kind==='svc'?parseSvc(rows,det.hi):det.kind==='cmp'?parseCmp(rows,det.hi):parseSatX(rows,det.hi);res.push({kind:det.kind,...p})});
+ wb.SheetNames.forEach(sn=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:null,blankrows:false});const p=parseRows(rows);if(p)res.push(p)});
  return res;
+}
+/* text-based (OCR / PowerPoint text / PDF text) */
+const KNOWN_TYPES=['شكوى مستفيد منوم بالمدينة','رعاية طبية وتمريضية دون المستوى','ضعف التواصل مع المريض','خروج المريض قبل استكمال العلاج','لم يتم إشراك عائلة المريض','عدم التزام الكادر الصحي بمواعيد الدوام','قصور في توفير الدعم النفسي للمريض','تأخير إجراء عملية جراحية','نقص المستلزمات الطبية','التأخر في نقل المريض','عدم الالتزام بسياسة مواعيد الزيارة','تدني مستوى خدمات الاستقبال','تدني مستوى غرف التنويم','معلومات ناقصة','غير مهتم باحتياجات المريض','مسار المريض الصحي','سلوك عدواني/سلوك غير لائق','تأخير نقل جثمان وتبليغ الوفاة','عدم وجود مدير مناوب','رفض استقبال مريض','رفض صرف الدواء','ضعف نظم التدفئة والتهوية وتكييف الهواء','مشاكل متعلقة بالخطة العلاجية','تجاهل','أخرى'];
+function parseTextLines(lines,hint){
+ lines=lines.map(N).filter(Boolean);const all=K(lines.join(' '));
+ const kind=hint||(/رضا|survey|راضي|satisf/.test(all)?'sat':'cmp');
+ const types=[...new Set([...ST.data.cmp.map(r=>r.ty).filter(Boolean),...KNOWN_TYPES])].sort((a,b)=>b.length-a.length).map(t=>[t,K(t)]);
+ const idx=[];lines.forEach((L,i)=>{if(/HT\s?\d{5,}/i.test(L))idx.push(i)});
+ const out=[];let skipped=0;
+ idx.forEach((i,j)=>{const end=Math.min(j+1<idx.length?idx[j+1]:lines.length,i+5);const seg=lines.slice(i,end).join(' ');
+  const t=seg.match(/HT\s?(\d{5,})/i);const d=toDate(seg);if(!d){skipped++;return}
+  const sk=K(seg);const ch0=/19910/.test(seg)?'19910':/\b937\b/.test(seg)?'937':'';const tm=(seg.match(/\b(\d{2}:\d{2})(:\d{2})?\b/)||[])[1]||'';
+  const st=sk.includes('مغلق')?'مغلق':sk.includes('انتظار')?'بانتظار الاعتماد':sk.includes('مفتوح')?'مفتوح':'';
+  if(kind==='cmp'){const ty=(types.find(x=>sk.includes(x[1]))||[''])[0];out.push({t:'HT'+t[1],d,tm,ty:ty||'غير مصنف',dep:'',st,emp:'',ds:cut(seg,300),nm:'',ch0})}
+  else{const cm=seg.replace(/HT\s?\d{5,}/ig,'').replace(/\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}|\d{1,2}[-\/.]\d{1,2}[-\/.]\d{4}/g,'').replace(/\d{1,2}:\d{2}(:\d{2})?/g,'').replace(/\b(Yes|No|True|False)\b/gi,'').replace(/\s+/g,' ').trim();
+   out.push({t:'HT'+t[1],d,tm,nm:'',res:(seg.match(/\b(Yes|No)\b/i)||[''])[0],st,cm:cut(cm,400),ch0})}
+ });
+ return {kind,recs:out,skipped,rowCh:out.some(r=>r.ch0),textBased:true,lines};
+}
+/* PowerPoint */
+let zipLoad=null;function ensureZip(){if(!zipLoad)zipLoad=loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js').then(()=>window.JSZip);return zipLoad}
+async function parsePptx(buf){
+ const JSZip=await ensureZip();const z=await JSZip.loadAsync(buf);const res=[];const lines=[];
+ for(const name of Object.keys(z.files).filter(n=>/^ppt\/embeddings\/.+\.(xlsx|xlsm|xls)$/i.test(n))){try{parseWorkbook(await z.file(name).async('arraybuffer')).forEach(p=>res.push(p))}catch(e){}}
+ const A='http://schemas.openxmlformats.org/drawingml/2006/main';const num=n=>+n.match(/slide(\d+)/)[1];
+ const slides=Object.keys(z.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>num(a)-num(b));
+ const ptext=p=>[...p.getElementsByTagNameNS(A,'t')].map(t=>t.textContent).join('');
+ let lastHeader=null;
+ for(const sn of slides){const doc=new DOMParser().parseFromString(await z.file(sn).async('string'),'application/xml');
+  for(const tbl of [...doc.getElementsByTagNameNS(A,'tbl')]){
+   let rows=[...tbl.getElementsByTagNameNS(A,'tr')].map(tr=>[...tr.getElementsByTagNameNS(A,'tc')].map(tc=>[...tc.getElementsByTagNameNS(A,'p')].map(ptext).join(' ')));
+   let p=parseRows(rows);
+   if(!p&&lastHeader&&rows.length&&rows[0].length===lastHeader.length){p=parseRows([lastHeader,...rows])}
+   if(p&&p.recs&&p.recs.length){res.push(p);const det=detectSheet(rows);if(det)lastHeader=rows[det.hi]}else rows.forEach(r=>lines.push(r.join(' ')));
+  }
+  [...doc.getElementsByTagNameNS(A,'p')].forEach(pp=>{let n=pp,inT=false;while(n){if(n.localName==='tbl'){inT=true;break}n=n.parentNode}if(!inT){const t=ptext(pp);if(t.trim())lines.push(t)}});
+ }
+ const tp=parseTextLines(lines);if(tp.recs.length)res.push(tp);
+ return res;
+}
+/* Images (OCR) */
+let tessLoad=null;function ensureTess(){if(!tessLoad)tessLoad=loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js').then(()=>window.Tesseract);return tessLoad}
+async function parseImage(file,onProg){
+ const T=await ensureTess();const w=await T.createWorker(['ara','eng'],1,{logger:m=>{if(m.status==='recognizing text'&&onProg)onProg(Math.round(m.progress*100))}});
+ try{const {data}=await w.recognize(file);const lines=String(data.text||'').split(/\n+/);const tp=parseTextLines(lines);
+  if(!tp.recs.length)return [{kind:tp.kind,textBased:true,lines,error:'قُرئت الصورة لكن لم يُعثر فيها على أرقام تذاكر (HT) مع تواريخ. تأكد أن الصورة واضحة وتحتوي جدول البلاغات أو التقييمات.'}];
+  return [tp]}finally{try{await w.terminate()}catch(e){}}
 }
 /* PDF */
 let pdfLoad=null;
@@ -963,12 +996,15 @@ function joinCell(items){
 }
 async function parsePdf(buf){
  const lib=await ensurePdf();const doc=await lib.getDocument({data:new Uint8Array(buf)}).promise;
- const out=[];let allText='';
+ const out=[];let allText='';const pdfRows=[];
  for(let p=1;p<=doc.numPages;p++){
   const pg=await doc.getPage(p);const tc=await pg.getTextContent();
   const it=tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:N(i.str)||i.str,x:i.transform[4],y:i.transform[5],w:i.width}));
   allText+=it.map(i=>i.s).join('');
   const tks=it.filter(i=>/^HT\d{4,}$/i.test(i.s.trim())).sort((a,b)=>b.y-a.y);
+  // build lines for fallbacks
+  const L=[];it.slice().sort((a,b)=>b.y-a.y).forEach(i=>{let l=L.find(x=>Math.abs(x.y-i.y)<2.5);if(!l){l={y:i.y,a:[]};L.push(l)}l.a.push(i)});
+  L.sort((a,b)=>b.y-a.y).forEach(l=>{const a=l.a.sort((p,q)=>q.x-p.x);const cells=[];let cur=[];a.forEach((x,ix)=>{if(ix&&a[ix-1].x-(x.x+x.w)>6){cells.push(joinCell(cur));cur=[]}cur.push(x)});if(cur.length)cells.push(joinCell(cur));pdfRows.push(cells)});
   tks.forEach((t,k)=>{const top=t.y+4,bot=k+1<tks.length?tks[k+1].y+4:-1e9;
    const band=it.filter(i=>i.y<top&&i.y>=bot&&i.y>t.y-60);const same=i=>Math.abs(i.y-t.y)<3;
    const yes=band.find(i=>/^(Yes|No|نعم|لا)$/i.test(i.s.trim())&&same(i));
@@ -983,9 +1019,11 @@ async function parsePdf(buf){
   });
  }
  const k=K(allText);
- const kind=/رضاءالمستفيد|رضاالمستفيد|تعليق/.test(k)?'sat':'sat';
- if(!out.length)return [{kind,error:'لم يتم العثور على تذاكر (HT...) في ملف PDF. تأكد أنه تقرير رضا المستفيد المصدّر من نظام CRM.'}];
- return [{kind,recs:out,skipped:0,rowCh:out.some(r=>r.ch0)}];
+ if(out.length&&/تعليق|comment|رضا/.test(k))return [{kind:'sat',recs:out,skipped:0,rowCh:out.some(r=>r.ch0)}];
+ const tbl=parseRows(pdfRows);if(tbl&&tbl.recs&&tbl.recs.length)return [tbl];
+ const tp=parseTextLines(pdfRows.map(r=>r.join(' ')));if(tp.recs.length)return [tp];
+ if(!allText.trim())return [{kind:'cmp',error:'ملف PDF عبارة عن صور ممسوحة. صوّر الصفحة أو احفظها كصورة وارفعها، وستُقرأ بالتعرف الضوئي.'}];
+ return [{kind:'sat',error:'لم يتم العثور على تذاكر (HT...) مع تواريخ في ملف PDF.'}];
 }
 
 /* ============ upload UI ============ */
@@ -999,11 +1037,13 @@ $('file').onchange=()=>{if($('file').files.length)readFiles([...$('file').files]
 async function readFiles(list){
  const R=$('up-res');R.innerHTML='<p style="margin-top:14px"><span class="spin"></span> جاري قراءة '+list.length+' ملف...</p>';
  for(const file of list){
-  try{const buf=await file.arrayBuffer();
-   const parts=/\.pdf$/i.test(file.name)?await parsePdf(buf):parseWorkbook(buf);
+  try{const nm=file.name;let parts;
+   if(/\.(png|jpe?g|webp|bmp|gif)$/i.test(nm)){R.innerHTML='<p style="margin-top:14px"><span class="spin"></span> جاري قراءة الصورة '+esc(nm)+' بالتعرف الضوئي... <b id="ocrp"></b></p>';parts=await parseImage(file,p=>{const e=$('ocrp');if(e)e.textContent=p+'%'})}
+   else if(/\.ppt$/i.test(nm)){parts=[{kind:'cmp',error:'صيغة PowerPoint القديمة (.ppt) غير مدعومة. افتح الملف واحفظه بصيغة pptx ثم ارفعه.'}]}
+   else{const buf=await file.arrayBuffer();parts=/\.pdf$/i.test(nm)?await parsePdf(buf):/\.(pptx|ppsx|potx)$/i.test(nm)?await parsePptx(buf):parseWorkbook(buf)}
    if(!parts.length)ST.files.push({name:file.name,error:'لم يتم التعرف على نوع الملف. تأكد أنه ملف الخدمات أو البلاغات أو رضا المستفيد.'});
-   parts.forEach(p=>ST.files.push({name:file.name,...p,ch:p.kind==='svc'?'':chFromName(file.name)||(p.kind==='sat'?'937':'19910')}));
-  }catch(e){console.error(e);ST.files.push({name:file.name,error:/\.pdf$/i.test(file.name)?'تعذرت قراءة ملف PDF. تأكد من الاتصال بالإنترنت وأن الملف غير محمي بكلمة مرور.':'تعذرت قراءة الملف. تأكد أنه ملف إكسل صالح.'})}
+   parts.forEach(p=>ST.files.push({name:file.name,...p,ch:p.kind==='svc'?'':p.hint||chFromName(file.name)||(p.kind==='sat'?'937':'19910')}));
+  }catch(e){console.error(e);const nm=file.name;ST.files.push({name:nm,error:/\.pdf$/i.test(nm)?'تعذرت قراءة ملف PDF. تأكد من الاتصال بالإنترنت وأن الملف غير محمي بكلمة مرور.':/\.(png|jpe?g|webp|bmp|gif)$/i.test(nm)?'تعذر تشغيل التعرف الضوئي على الصور هنا. يعمل في نسخة سطح المكتب ونسخة GitHub مع اتصال بالإنترنت.':/\.pptx?$/i.test(nm)?'تعذرت قراءة ملف PowerPoint.':'تعذرت قراءة الملف. تأكد أنه ملف إكسل صالح.'})}
  }
  renderPreview();
 }
@@ -1020,8 +1060,9 @@ function renderPreview(){
  const R=$('up-res');const G=buildGroups();const keys=Object.keys(G).sort((a,b)=>{const A=G[a],B=G[b];return A.ds===B.ds?(A.m<B.m?1:-1):(A.ds<B.ds?-1:1)});
  const prevSel=new Set([...R.querySelectorAll('input[data-g]')].filter(c=>c.checked).map(c=>c.value));const hadSel=R.querySelector('input[data-g]');
  let h='<p class="gh">الملفات</p><div class="mlist">'+ST.files.map((f,i)=>`<div class="mrow"><div class="grow"><b>${esc(f.name)}</b><small>${f.error?`<span style="color:var(--bad)">${esc(f.error)}</span>`:`${KL[f.kind]}، ${f.recs.length} سجل${f.skipped?`، تم تجاهل ${f.skipped} صف بدون تاريخ صالح`:''}`}</small></div>
+  ${f.textBased&&f.lines?`<label style="font-size:13px;color:var(--muted)">النوع <select data-k="${i}"><option value="cmp" ${f.kind==='cmp'?'selected':''}>بلاغات</option><option value="sat" ${f.kind==='sat'?'selected':''}>رضا المستفيد</option></select></label>`:''}
   ${!f.error&&f.kind!=='svc'&&!f.rowCh?`<label style="font-size:13px;color:var(--muted)">القناة <select data-f="${i}"><option value="937" ${f.ch==='937'?'selected':''}>937</option><option value="19910" ${f.ch==='19910'?'selected':''}>CRM 19910</option></select></label>`:''}
-  ${f.error?'<span class="pill b">غير مقروء</span>':`<span class="pill">${KL[f.kind]}</span>`}</div>`).join('')+'</div>';
+  ${f.error?'<span class="pill b">غير مقروء</span>':`<span class="pill">${KL[f.kind]}</span>`}${f.textBased&&!f.error?'<span class="pill g">قراءة نصية: راجع الأرقام</span>':''}</div>`).join('')+'</div>';
  if(keys.length){
   h+='<p class="gh">الأشهر المكتشفة</p><div class="mlist">'+keys.map(k=>{const g=G[k];const ex=ST.months[k];const def=g.ds==='svc'?g.recs.length>=5:true;const chk=hadSel?prevSel.has(k):def;
    return `<label class="mrow"><input type="checkbox" data-g value="${k}" ${chk?'checked':''}><div class="grow"><b>${dsLabel(g.ds)}: ${mName(g.m)}</b><small>${g.recs.length} سجل${ex?` · سيستبدل البيانات الحالية (${ex.count})`:''}</small></div>${ex?'<span class="pill g">موجود</span>':'<span class="pill">جديد</span>'}</label>`}).join('')+'</div>';
@@ -1030,6 +1071,7 @@ function renderPreview(){
  }
  R.innerHTML=h;
  R.querySelectorAll('select[data-f]').forEach(s=>s.onchange=()=>{ST.files[+s.dataset.f].ch=s.value;renderPreview()});
+ R.querySelectorAll('select[data-k]').forEach(s=>s.onchange=()=>{const f=ST.files[+s.dataset.k];const p=parseTextLines(f.lines,s.value);Object.assign(f,p,{error:p.recs.length?'':f.error});renderPreview()});
  if(keys.length){$('up-all').onclick=()=>R.querySelectorAll('input[data-g]').forEach(c=>c.checked=true);$('up-save').onclick=()=>saveGroups(G);$('up-more').onclick=()=>$('file').click()}
 }
 function chunkRecs(list){const out=[];let cur=[],size=0;const enc=new TextEncoder();
