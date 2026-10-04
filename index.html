@@ -500,7 +500,7 @@ $('b-out').onclick=()=>{if(ST.local){location.reload();return}logout()};
 const myTabs=()=>{const m=ST.me;if(!m)return [];if(m.role==='admin')return ['svc','cmp','sat'];return (m.tabs&&m.tabs.length?m.tabs:['svc','cmp','sat'])};
 function paintMe(){const m=ST.me;$('me-name').textContent=m.name||m.id;$('me-av').textContent=(m.name||m.id||'؟').trim().charAt(0);
  $('me-role').textContent=(m.role==='admin'?'مدير النظام':'مشاهد')+(m.emp?' · خدمات '+m.emp+' فقط':'')+(ST.desktop?' · نسخة سطح المكتب':'');
- const adm=m.role==='admin';$('b-up').hidden=!adm;$('b-data').hidden=!adm||ST.local;$('b-users').hidden=!adm||ST.local;$('b-pw').hidden=ST.local;
+ const adm=m.role==='admin';$('b-up').hidden=false;$('b-data').hidden=!adm||ST.local;$('b-users').hidden=!adm||ST.local;$('b-pw').hidden=ST.local;
  if(m.emp)ST.cur=m.emp;
  const t=myTabs();document.querySelectorAll('#tabs button').forEach(b=>b.hidden=!t.includes(b.dataset.tab));$('tabs').hidden=t.length<2;
  if(!t.includes(ST.tab))ST.tab=t[0]||'svc'}
