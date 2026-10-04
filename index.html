@@ -10,7 +10,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSzWvWcm5prSnpwpWYxxfz7Tn8FiQUAnc",
+    authDomain: "on-duty-managers-platform.firebaseapp.com",
+    projectId: "on-duty-managers-platform",
+    storageBucket: "on-duty-managers-platform.firebasestorage.app",
+    messagingSenderId: "884278063168",
+    appId: "1:884278063168:web:026bd026dcb4d2c604efa5"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.firebaseDB = getFirestore(app);
+  window.firebaseAuth = getAuth(app);
+</script>
+ <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
 --bg:#FFFFFF;--surface:#FFFFFF;--ink:#1B2B34;--muted:#5E7079;--line:#E3EAED;--soft:#F4F8F9;
 --head:#0E5A6B;--accent:#12A39B;--gold:#D8A23A;--warn:#D8A23A;--bad:#C8553D;
