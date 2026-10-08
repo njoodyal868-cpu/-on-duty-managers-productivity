@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>منصة إنتاجية المدراء المناوبين</title>
+<title>منصة حوكمة البيانات الإنتاجية لإدارة المدراء المناوبين</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -179,7 +179,7 @@ tr.tot td{font-weight:800;background:var(--soft)}
 <div class="gate" id="scr-login" hidden>
  <div class="gcard">
   <div class="logo">م</div>
-  <h1>منصة إنتاجية المدراء المناوبين</h1>
+  <h1>منصة حوكمة البيانات الإنتاجية لإدارة المدراء المناوبين</h1>
   <p>سجّل الدخول باسم المستخدم وكلمة المرور</p>
   <label class="fl" for="li-u">اسم المستخدم</label><input type="text" id="li-u" autocomplete="username" dir="ltr">
   <label class="fl" for="li-p">كلمة المرور</label><input type="password" id="li-p" autocomplete="current-password" dir="ltr">
@@ -215,7 +215,7 @@ tr.tot td{font-weight:800;background:var(--soft)}
 
 <div class="app" id="scr-app" hidden>
 <aside>
- <div class="brand"><div class="logo">م</div><div><b>إدارة المدراء المناوبين</b><small>منصة الإنتاجية والجودة</small></div></div>
+ <div class="brand"><div class="logo">م</div><div><b>منصة حوكمة البيانات الإنتاجية</b><small>إدارة المدراء المناوبين</small></div></div>
  <h5>نوع التقرير</h5>
  <div class="seg" id="seg" role="group" aria-label="نوع الفترة">
   <button data-pt="m">شهري</button><button data-pt="q">ربعي</button><button data-pt="h">نصف سنوي</button><button data-pt="y">سنوي</button>
@@ -768,7 +768,7 @@ const isClosed=st=>/مغلق|closed|resolved|تم الحل|منتهي/i.test(st|
 /* ---- complaints ---- */
 function renderCmp(months,PN){
  chBar();
- $('foot').textContent='المصدر: تقارير البلاغات من 937 و CRM 19910. تُحسب الفترات من تاريخ إنشاء البلاغ.'+(ST.desktop?' نسخة سطح المكتب: البيانات محفوظة في هذا المتصفح على هذا الجهاز فقط.':'');
+ $('foot').textContent='المصدر: تقارير البلاغات من 937 و CRM 19910. تُحسب الفترات من تاريخ إنشاء البلاغ.'+(tabRecs().some(r=>r.sti)?' في الملفات التي لا تحتوي عمود حالة، يُعد البلاغ مغلقًا إذا سُجل عليه رد في الملاحظات.':'')+(ST.desktop?' نسخة سطح المكتب: البيانات محفوظة في هذا المتصفح على هذا الجهاز فقط.':'');
  setNav([['c-kpi','حركة البلاغات'],['c-ch','حسب القناة'],['c-ty','تصنيف البلاغات'],['c-x','التصنيف حسب القناة'],['c-st','حالة البلاغات'],['c-dp','الأقسام المعنية'],['c-em','الموظف المسند إليه'],['c-r','سجل البلاغات']]);
  const mset=new Set(months);const rs=tabRecs().filter(r=>mset.has(r.d.slice(0,7)));
  $('title').textContent='البلاغات والشكاوى'+(ST.chf!=='all'?' ('+CHN[ST.chf]+')':'');
@@ -911,16 +911,24 @@ function parseSvc(rows,hi){
 function colFinder(H){const HK=H.map(K);return (...pats)=>{for(const p of pats){const i=HK.findIndex(h=>typeof p==='string'?h===p:p.test(h));if(i>=0)return i}return -1}}
 function parseCmp(rows,hi){
  const H=rows[hi].map(N);const f=colFinder(H);
- const iT=f('complaintno',/رقمالشكوي|رقمالبلاغ|تذكرهرقم|رقمالتذكره/),iTy=f('complainttype',/نوعالشكوي|نوعالبلاغ|تصنيف/),iDp=f('department',/^القسم$|^قسم$/),iSt=f('complaintstatus','status',/حالهال/),
+ const iT=f('complaintno',/رقمالشكوي|رقمالبلاغ|تذكرهرقم|رقمالتذكره|رقمتذكره/),iTy=f('complainttype',/نوعالشكوي|نوعالبلاغ|تصنيف/),iDp=f('department',/^القسم$|^قسم$/),iSt=f('complaintstatus','status',/حالهال/),
   iEm=f('employeename',/اسمالموظف|مسندالي|الموظف/),iDs=f('description',/الوصف|وصفال/),iD=f('createdate',/تاريخالانشاء|انشاءتاريخ|تاريخالبلاغ|تاريخ|date/),iNm=f('patientname',/اسمالمستفيد|اسمالمريض/),iCh=f('channel',/قناه/);
  if(iD<0)return {error:'لم يتم العثور على عمود تاريخ البلاغ'};
  const hk=H.map(K).join('|');const hint=hk.includes('19910')?'19910':hk.includes('937')?'937':'';
- const out=[];let skipped=0;
+ const iNo=f(/سطرملاحظه|ملاحظهعام|^ملاحظات$|^notes?$/);
+ const out=[];let skipped=0,cur=null;
  for(let r=hi+1;r<rows.length;r++){const row=rows[r];if(!row)continue;const d=toDate(row[iD]);const t=iT>=0?N(row[iT]):'';
-  if(!d||(!t&&!(iTy>=0&&N(row[iTy])))){if(row.some(c=>N(c)))skipped++;continue}
+  if(!d||(!t&&!(iTy>=0&&N(row[iTy])))){
+   if(cur&&iNo>=0&&!(iT>=0&&N(row[iT]))&&!(iTy>=0&&N(row[iTy]))){const v=N(row[iNo]);if(v)cur._n.push(v);continue}
+   if(row.some(c=>N(c)))skipped++;continue}
   const g=i=>i>=0?N(row[i]):'';
-  out.push({t,d,tm:toTime(row[iD]),ty:g(iTy),dep:g(iDp),st:g(iSt),emp:g(iEm),ds:cut(g(iDs),500),nm:g(iNm),ch0:iCh>=0?chOf(row[iCh]):''});
+  cur={t,d,tm:toTime(row[iD]),ty:g(iTy),dep:g(iDp),st:g(iSt),emp:g(iEm),ds:cut(g(iDs),500),nm:g(iNm),ch0:iCh>=0?chOf(row[iCh]):'',_n:[]};
+  if(iNo>=0&&N(row[iNo]))cur._n.push(N(row[iNo]));out.push(cur);
  }
+ out.forEach(o=>{const real=o._n.filter(x=>x.length>3&&!/^auto\s*assign$/i.test(x));
+  if(!o.ds&&real.length)o.ds=cut(real[0],500);
+  if(iSt<0){o.st=real.length?'مغلق':'تحت الإجراء';o.sti=1}
+  delete o._n});
  return {recs:out,skipped,rowCh:out.some(r=>r.ch0),hint};
 }
 function parseSatX(rows,hi){
@@ -1042,7 +1050,7 @@ async function readFiles(list){
    else if(/\.ppt$/i.test(nm)){parts=[{kind:'cmp',error:'صيغة PowerPoint القديمة (.ppt) غير مدعومة. افتح الملف واحفظه بصيغة pptx ثم ارفعه.'}]}
    else{const buf=await file.arrayBuffer();parts=/\.pdf$/i.test(nm)?await parsePdf(buf):/\.(pptx|ppsx|potx)$/i.test(nm)?await parsePptx(buf):parseWorkbook(buf)}
    if(!parts.length)ST.files.push({name:file.name,error:'لم يتم التعرف على نوع الملف. تأكد أنه ملف الخدمات أو البلاغات أو رضا المستفيد.'});
-   parts.forEach(p=>ST.files.push({name:file.name,...p,ch:p.kind==='svc'?'':p.hint||chFromName(file.name)||(p.kind==='sat'?'937':'19910')}));
+   parts.forEach(p=>ST.files.push({name:file.name,...p,ch:p.kind==='svc'?'':chFromName(file.name)||p.hint||(p.kind==='sat'?'937':'19910')}));
   }catch(e){console.error(e);const nm=file.name;ST.files.push({name:nm,error:/\.pdf$/i.test(nm)?'تعذرت قراءة ملف PDF. تأكد من الاتصال بالإنترنت وأن الملف غير محمي بكلمة مرور.':/\.(png|jpe?g|webp|bmp|gif)$/i.test(nm)?'تعذر تشغيل التعرف الضوئي على الصور هنا. يعمل في نسخة سطح المكتب ونسخة GitHub مع اتصال بالإنترنت.':/\.pptx?$/i.test(nm)?'تعذرت قراءة ملف PowerPoint.':'تعذرت قراءة الملف. تأكد أنه ملف إكسل صالح.'})}
  }
  renderPreview();
